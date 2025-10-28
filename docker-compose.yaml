@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  app:  # Servicio para el servidor de aplicación (Python/Flask)
+    build: .  # Construye la imagen desde el Dockerfile en el directorio actual
+    ports:
+      - "5000:5000"  # Expone el puerto 5000 de la app al host
+    environment:  # Variables de entorno para la conexión a BD
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: rootpassword
+      DB_NAME: mydatabase
+    depends_on:
+      - db  # Espera a que la BD esté lista antes de iniciar
+    networks:
+      - app-network
+
+  db:  # Servicio para la base de datos MySQL
+    image: mysql:8.0  # Usa la imagen oficial de MySQL versión 8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword  # Contraseña root (cámbiala en producción)
+      MYSQL_DATABASE: mydatabase  # Crea una BD llamada 'mydatabase' al iniciar
+    ports:
+      - "3306:3306"  # Expone el puerto de MySQL (opcional, para acceso externo)
+    volumes:
+      - db-data:/var/lib/mysql  # Persiste los datos de la BD
+    networks:
+      - app-network
+
+volumes:
+  db-data:  # Volumen para persistir datos de MySQL
+
+networks:
+  app-network:  # Red interna para que los servicios se comuniquen
